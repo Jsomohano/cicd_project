@@ -1,0 +1,78 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python package
+
+
+on:
+  schedule:
+  # Ejecutar todos los días a las 11:00 AM UTC
+  - cron: '0 11 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.11
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    
+    - name: Setup Chrome
+      # You may pin to the exact commit or the version.
+      # uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416
+      uses: browser-actions/setup-chrome@v2.1.0
+          
+    - name: Test with pytest
+      run: |
+        pytest --alluredir=allure-results
+
+    - name: Upload Allure results artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: allure-results
+        path: allure-results
+        retention-days: 30
+        
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Generate Allure Report
+      uses: simple-elf/allure-report-action@master
+      id: allure-report
+      with:
+        allure_results: allure-results
+        allure_report: allure-report
+        gh_pages: false
+        
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: allure-report
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+
+
