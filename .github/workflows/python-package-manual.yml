@@ -14,6 +14,11 @@ on:
         description: Test cases suite to execute
         required: true
         default: 'regression'
+        type: choice
+        options:
+          - 'regression'
+          - 'smoke'
+          - 'sanity'
 
 
 permissions:
