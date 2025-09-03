@@ -8,8 +8,12 @@ on:
     inputs:
       python-version:
         description: Python version for execute test cases
-        required: false
+        required: true
         default: '3.11'
+      marker:
+        description: Test cases suite to execute
+        required: true
+        default: 'regression'
 
 
 permissions:
@@ -47,7 +51,7 @@ jobs:
           
     - name: Test with pytest
       run: |
-        pytest --alluredir=allure-results
+        pytest -m '${{github.event.inputs.marker}}' --alluredir=allure-results
 
     - name: Upload Allure results artifact
       uses: actions/upload-artifact@v4
