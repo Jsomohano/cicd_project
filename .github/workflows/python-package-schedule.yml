@@ -3,7 +3,6 @@
 
 name: Python package scheduled
 
-
 on:
   schedule:
   # Ejecutar todos los días a las 11:00 AM UTC
